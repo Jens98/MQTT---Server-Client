@@ -1,0 +1,50 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Net;
+using System.Text;
+using System.Threading.Tasks;
+using MQTTnet;
+using MQTTnet.Server;
+
+namespace MQTTBroker
+{
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            var server = new Server();
+            Console.WriteLine("server läuft");
+            while (true)
+            {
+                Console.ReadKey();
+            }
+        }
+
+        class Server {
+            IMqttServer broker;
+            public Server()
+            {
+                startServer();
+            }
+
+            private async void startServer()
+            {
+                var optionsbuilder = new MQTTnet.Server.MqttServerOptionsBuilder()
+                    .WithConnectionBacklog(10)
+                    .WithDefaultEndpointPort(1883)
+                    .WithDefaultEndpointBoundIPAddress(IPAddress.Parse("172.24.93.217"))
+                    .Build();
+
+                broker =  new MqttFactory().CreateMqttServer();
+                await broker.StartAsync(optionsbuilder);
+                broker.ClientConnected += Broker_ClientConnected;
+            }
+
+            private void Broker_ClientConnected(object sender, MqttClientConnectedEventArgs e)
+            {
+                Console.WriteLine(e);
+            }
+        }
+    }
+}
